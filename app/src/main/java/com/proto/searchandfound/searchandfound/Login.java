@@ -1,51 +1,98 @@
 package com.proto.searchandfound.searchandfound;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 
 import org.apache.http.NameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class Login extends ActionBarActivity {
+public class Login extends ActionBarActivity implements View.OnClickListener{
 
     private Button login;
-    private TextView username, passwort;
-    private String userT,passwT;
+    private TextView user, pass;
+    private static final String LOGIN_FILE_PHP = "Login.php";
+    private Map<String, String> params;
+    private UrlDomain domain;
+    private Response.Listener listener;
+    private Response.ErrorListener error;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        JSONParser jsonParser = new JSONParser();
-        username = (TextView) findViewById(R.id.Username);
-        passwort = (TextView) findViewById(R.id.Passwort);
+        domain = new UrlDomain();
+        user = (TextView) findViewById(R.id.Username);
+        pass = (TextView) findViewById(R.id.Passwort);
         login = (Button) findViewById(R.id.login);
-        this.loginListener();
+        login.setOnClickListener(this);
     }
 
-    public void loginListener(){
+    @Override
+    public void onClick(View v){
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        if(v.equals(login)){
 
-                new LoginExecute().execute();
+            listener = new Response.Listener<String>(){
 
-            }
-        });
 
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        boolean resp = obj.getBoolean("success");
+                        final String TAG = "responseServer" ;
+                        Log.v(TAG,obj.getString("message"));
+                        if(resp){
+
+                            Intent in = new Intent(Login.this,HomeScreen.class);
+                            Login.this.startActivity(in);
+
+                        }else{
+                            String message = obj.getString("message");
+                            AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                            builder.setMessage(message).setNegativeButton("Retry", null).create().show();
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    error = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    };
+
+                }
+            };
+            this.logUser();
+
+        }
     }
 
     @Override
@@ -70,54 +117,36 @@ public class Login extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void logUser() {
 
-    /**
-     * Created by #Chris on 05.04.2016.
-     */
-    class LoginExecute extends AsyncTask<String,String,String> {
+        String username = this.user.getText().toString().trim();
+        String password = this.pass.getText().toString().trim();
+        String url = urlBuilder(this.domain.getURL(), this.LOGIN_FILE_PHP);
+        if((username != null && username != "") && (password != null && password != "") ){
+            this.params = new HashMap<>();
+            this.params.put("Username", username);
+            this.params.put("Passwort", password);
+            this.params.put("Url", url);
+            final String TAG = "url" ;
+            Log.v(TAG,username);
 
-        //Login progressdialog
-        private ProgressDialog pDialog;
-        private static final String LOGIN_URL = "";
-        //JSON element ids from repsonse of php script:
-        private static final String TAG_SUCCESS = "success";
-        private static final String TAG_MESSAGE = "message";
+            AndroidRequestHandler request = new AndroidRequestHandler(params,listener,error);
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(request);
 
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(Login.this);
-            pDialog.setMessage("Prüft Login...");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(true);
+        }else{
 
         }
 
-        @Override
-        protected String doInBackground(String... strings) {
-
-            userT = username.getText().toString();
-            passwT = passwort.getText().toString();
-            try{
-
-                List<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
-                params.add(new Pair<String, String>("username",userT));
-                params.add(new Pair<String, String>("passwort",passwT));
-
-            }catch (){
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
-            super.onPostExecute(s);
-            pDialog.dismiss();
-        }
     }
+
+    public String urlBuilder(String domain, String path){
+
+        StringBuilder builder = new StringBuilder(domain);
+        String url = builder.append(path).toString();
+        return url;
+    }
+
 
 
 }

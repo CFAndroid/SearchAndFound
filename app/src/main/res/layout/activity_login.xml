@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
-        android:id="@+id/editText"
-        android:layout_above="@+id/editText2"
+        android:id="@+id/Username"
+        android:layout_above="@+id/Passwort"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="61dp" />
@@ -22,18 +22,18 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:id="@+id/editText2"
+        android:id="@+id/Passwort"
         android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/editText"
-        android:layout_alignStart="@+id/editText" />
+        android:layout_alignLeft="@+id/Username"
+        android:layout_alignStart="@+id/Username" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/user"
-        android:id="@+id/Username"
-        android:layout_alignTop="@+id/editText"
+        android:id="@+id/User"
+        android:layout_alignTop="@+id/Username"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -42,8 +42,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/password"
-        android:id="@+id/Passwort"
-        android:layout_alignTop="@+id/editText2"
+        android:id="@+id/Pass"
+        android:layout_alignTop="@+id/Passwort"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -53,9 +53,9 @@
         android:text="@string/loginbutton"
         android:id="@+id/login"
         android:layout_marginTop="55dp"
-        android:layout_below="@+id/editText2"
-        android:layout_alignLeft="@+id/editText2"
-        android:layout_alignStart="@+id/editText2"
+        android:layout_below="@+id/Passwort"
+        android:layout_alignLeft="@+id/Passwort"
+        android:layout_alignStart="@+id/Passwort"
         android:layout_marginLeft="51dp"
         android:layout_marginStart="51dp" />
 </RelativeLayout>
